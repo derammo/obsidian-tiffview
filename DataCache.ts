@@ -14,10 +14,6 @@ export class DataCache extends Map<string, string> {
 
     set(key: string, value: string): this {
         const itemSize = value.length;
-        if (itemSize > this.settings.cacheMegaBytes * 1024 * 1024) {
-            // this also handles the case of the cache being set to 0
-            return this;
-        }
         while (this.size > 0 && this.sizeBytes > this.settings.cacheMegaBytes * 1024 * 1024 - itemSize) {
             // evict oldest item
             const firstKey = this.keys().next().value;
@@ -28,6 +24,10 @@ export class DataCache extends Map<string, string> {
         if (this.size == 0) {
             // recover from any bugs or hot reloads causing drift
             this.sizeBytes = 0;
+        }
+        if (itemSize > this.settings.cacheMegaBytes * 1024 * 1024) {
+            // this also handles the case of the cache being set to 0
+            return this;
         }
         this.sizeBytes += itemSize;
         return super.set(key, value);
