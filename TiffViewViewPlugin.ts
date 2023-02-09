@@ -20,7 +20,8 @@ export abstract class TiffViewViewPlugin extends ViewPluginBase<MinimalPlugin> {
                         case "inline-code_quote_quote-1":                            
                             const content = view.state.doc.sliceString(scannedNode.from, scannedNode.to);
                             if (content.startsWith("!tiff ")) {
-                                builder.add(scannedNode.from-1, scannedNode.to + 1, Decoration.widget({ widget: new TiffViewWidget(app, content.slice(6)) }));
+                                builder.add(scannedNode.from, scannedNode.to, Decoration.mark({ attributes: { "class": "tiff-view-command tiff-view-command-auto-hide" } }));
+                                builder.add(scannedNode.to + 1, scannedNode.to + 1, Decoration.widget({ widget: new TiffViewWidget(app, content.slice(6)) }));
                             }
                             break;
 					}
