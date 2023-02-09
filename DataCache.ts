@@ -19,15 +19,18 @@ export class DataCache extends Map<string, string> {
         while (this.sizeBytes > this.settings.cacheMegaBytes * 1024 * 1024 - itemSize) {
             // evict oldest item
             const firstKey = this.keys().next().value;
+            const firstValue = this.get(firstKey);
+            this.sizeBytes -= firstValue?.length ?? 0;
             this.delete(firstKey);
         }
+        this.sizeBytes += itemSize;
         return super.set(key, value);
     }
 
     get(key: string): string | undefined {
         const value = super.get(key);
         if (value !== undefined) {
-            // refresh to front
+            // refresh to back
             this.delete(key);
             this.set(key, value);
         }
