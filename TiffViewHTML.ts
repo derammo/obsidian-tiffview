@@ -16,7 +16,7 @@ export function buildTiffView(app: App, cache: DataCache, localPath: string): HT
         return container;
     }
     if (!(localFile instanceof TFile)) {
-        // XXX add some error display to container 
+        // TODO add some error display to container 
         return container;
     }
     if (cache.has(localPath)) {
@@ -26,44 +26,58 @@ export function buildTiffView(app: App, cache: DataCache, localPath: string): HT
     }
 
     // TODO: make this load in background (async) and then update the view when the image is available
-    app.vault.readBinary(localFile).then((raw) => {
-        const ifds = UTIF.decode(raw);
-        let vsns = ifds;
-        let ma = 0;
-        let page = vsns[0];
-        if (ifds[0].subIFD) {
-            vsns = vsns.concat(ifds[0].subIFD);
-        }
-        for (let i = 0; i < vsns.length; i++) {
-            const img = vsns[i];
-            if (img["t258"] == null || img["t258"].length < 3) {
-                continue;
-            }
-            var ar = img["t256"] * img["t257"];
-            if (ar > ma) {
-                ma = ar;
-                page = img;
-            }
-        }
-        UTIF.decodeImage(raw, page, ifds);
-        const rgba = UTIF.toRGBA8(page);
-        const canvas = document.createElement("canvas");
-        canvas.width = page.width;
-        canvas.height = page.height;
-        const canvas2D = canvas.getContext("2d");
-        const imageData = canvas2D!.createImageData(page.width, page.height);
-        for (var i = 0; i < rgba.length; i++) {
-            // Uint8Array into Uint8ClampedArray
-            imageData.data[i] = rgba[i];
-        }
-        canvas2D!.putImageData(imageData, 0, 0);
-
-        // XXX cache this data URL, with proper LRU policy, total size limit, and detection of changed files
-        image.src = canvas.toDataURL();
+    app.vault.readBinary(localFile)
+    .then(decodeImage)
+    .then(convertToRGBA8)
+    .then(renderOnCanvas)
+    .then((rendered: HTMLCanvasElement) => {
+        image.src = rendered.toDataURL();
         cache.set(localPath, image.src);
         container.appendChild(image);
-
-        // XXX modifying the DOM after we have returned it is probably not allowed we will need to async load and then notify view to refresh later, debounce
+        // TODO modifying the DOM after we have returned it is probably not allowed we will need to async load and then notify view to refresh later, debounce
     });
     return container;
+}
+
+function convertToRGBA8(page: any): { page: any, rgba: Uint8Array } {
+    return { page: page, rgba: UTIF.toRGBA8(page) };
+}
+
+function renderOnCanvas(converted: { page: any, rgba: Uint8Array }): HTMLCanvasElement {
+    // NOTE: this code is lifted from UTIF._imgLoaded, which is why it is in this style
+    const canvas = document.createElement("canvas");
+    canvas.width = converted.page.width;
+    canvas.height = converted.page.height;
+    const canvas2D = canvas.getContext("2d");
+    const imageData = canvas2D!.createImageData(converted.page.width, converted.page.height);
+    for (var i = 0; i < converted.rgba.length; i++) {
+        // Uint8Array into Uint8ClampedArray
+        imageData.data[i] = converted.rgba[i];
+    }
+    canvas2D!.putImageData(imageData, 0, 0);
+    return canvas;
+}
+
+function decodeImage(raw: ArrayBuffer):any | null | undefined {
+    // NOTE: this code is lifted from UTIF._imgLoaded, which is why it is in this style
+    const ifds = UTIF.decode(raw);
+    let vsns = ifds;
+    let ma = 0;
+    let page = vsns[0];
+    if (ifds[0].subIFD) {
+        vsns = vsns.concat(ifds[0].subIFD);
+    }
+    for (let i = 0; i < vsns.length; i++) {
+        const img = vsns[i];
+        if (img["t258"] == null || img["t258"].length < 3) {
+            continue;
+        }
+        var ar = img["t256"] * img["t257"];
+        if (ar > ma) {
+            ma = ar;
+            page = img;
+        }
+    }
+    UTIF.decodeImage(raw, page, ifds);
+    return page;
 }

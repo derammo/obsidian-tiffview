@@ -3,6 +3,8 @@ import { MinimalPlugin } from "ViewPluginBase";
 
 // HACK implementation that uses the sorted nature of Map to implement a LRU cache
 // instead of keeping a separate LRU list of records
+//
+// TODO detection of changed files      
 export class DataCache extends Map<string, string> {
     private sizeBytes: number = 0;
 
