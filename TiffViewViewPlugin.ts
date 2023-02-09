@@ -34,7 +34,7 @@ export abstract class TiffViewViewPlugin extends ViewPluginBase<MinimalPlugin> {
     }
 }
 
-class TiffViewWidget extends WidgetType {
+export class TiffViewWidget extends WidgetType {
     constructor(private app: App, private cache: DataCache, private localPath: string) {
         super();
     }

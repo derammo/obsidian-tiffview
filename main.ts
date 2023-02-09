@@ -8,6 +8,7 @@ import { TiffViewSettingTab } from "./TiffViewSettingTab";
 import { TiffViewViewPlugin } from "./TiffViewViewPlugin";
 import { createTiffViewPostProcessor } from "./TiffViewMarkdownPostProcessor";
 import { DataCache, DataCacheHost } from "DataCache";
+import { createTiffViewStateField } from "TiffViewStateField";
 
 export default class TiffViewObsidianPlugin extends Plugin implements MinimalPlugin, DataCacheHost  {
 	settingsDirty: boolean;
@@ -47,6 +48,7 @@ export default class TiffViewObsidianPlugin extends Plugin implements MinimalPlu
 			}
 		}, commandsSpec);
 		this.registerEditorExtension(tiffView);
+		this.registerEditorExtension(createTiffViewStateField(this));
 	}	
 }
 
