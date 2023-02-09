@@ -13,6 +13,17 @@ export class TiffViewSettingTab extends PluginSettingTab {
 
 		containerEl.createEl('h2', { text: 'Settings for TIFF View Plugin' });
 
-		// TODO: add settings
+		new Setting(containerEl)
+			.setName("Cache Size (MB)")
+			.setDesc("The size of the cache in megabytes. The default is 200 MB.")
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 2000, 10)
+					.setValue(this.plugin.settings.cacheMegaBytes)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.cacheMegaBytes = value;
+						await this.plugin.saveSettings();
+					}));
 	}
 }

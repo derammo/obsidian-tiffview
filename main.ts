@@ -7,16 +7,19 @@ import { DEFAULT_SETTINGS, TiffViewSettings } from './TiffViewSettings';
 import { TiffViewSettingTab } from "./TiffViewSettingTab";
 import { TiffViewViewPlugin } from "./TiffViewViewPlugin";
 import { createTiffViewPostProcessor } from "./TiffViewMarkdownPostProcessor";
+import { DataCache, DataCacheHost } from "DataCache";
 
-export default class TiffViewObsidianPlugin extends Plugin implements MinimalPlugin {
+export default class TiffViewObsidianPlugin extends Plugin implements MinimalPlugin, DataCacheHost  {
 	settingsDirty: boolean;
 	settings: TiffViewSettings;
-
+	cache: DataCache;
+	
 	async onload() {
 		await this.loadSettings();
+		this.cache = new DataCache(this.settings);
 		this.addSettingTab(new TiffViewSettingTab(this.app, this));
 		this.registerTiffView();
-		this.registerMarkdownPostProcessor(createTiffViewPostProcessor(this.app));
+		this.registerMarkdownPostProcessor(createTiffViewPostProcessor(this.app, this.cache));
 	}
 
 	onunload() {

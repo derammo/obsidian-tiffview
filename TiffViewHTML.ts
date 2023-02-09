@@ -1,12 +1,10 @@
 import { App, TFile } from "obsidian";
+import { DataCache } from "./DataCache";
 
 // don't have matching symbols for this
 const UTIF = require("utif");
 
-// HACK TEST cache with no LRU policy
-const cache: Map<string, string> = new Map<string, string>();
-
-export function buildTiffView(app: App, localPath: string): HTMLElement {
+export function buildTiffView(app: App, cache: DataCache, localPath: string): HTMLElement {
     const container = document.createElement("span");
     container.classList.add("tiff-view-container");
     const image = document.createElement("img");
