@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-tiffview",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "TIFF File Viewer Plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {

@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-tiffview",
 	"name": "TIFF File Viewer Plugin",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "This plugin's commands display TIFF images directly in Live Preview and Reading views.",
 	"author": "derammo",
