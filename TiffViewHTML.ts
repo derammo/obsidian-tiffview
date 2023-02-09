@@ -2,6 +2,7 @@ import { App, TFile } from "obsidian";
 import { DataCache } from "./DataCache";
 
 // don't have matching symbols for this
+// REVISIT: the npm version of this that we are using is ancient, should consider using directly from repo
 const UTIF = require("utif");
 
 export function buildTiffView(app: App, cache: DataCache, localPath: string): HTMLElement {
@@ -39,26 +40,7 @@ export function buildTiffView(app: App, cache: DataCache, localPath: string): HT
     return container;
 }
 
-function convertToRGBA8(page: any): { page: any, rgba: Uint8Array } {
-    return { page: page, rgba: UTIF.toRGBA8(page) };
-}
-
-function renderOnCanvas(converted: { page: any, rgba: Uint8Array }): HTMLCanvasElement {
-    // NOTE: this code is lifted from UTIF._imgLoaded, which is why it is in this style
-    const canvas = document.createElement("canvas");
-    canvas.width = converted.page.width;
-    canvas.height = converted.page.height;
-    const canvas2D = canvas.getContext("2d");
-    const imageData = canvas2D!.createImageData(converted.page.width, converted.page.height);
-    for (var i = 0; i < converted.rgba.length; i++) {
-        // Uint8Array into Uint8ClampedArray
-        imageData.data[i] = converted.rgba[i];
-    }
-    canvas2D!.putImageData(imageData, 0, 0);
-    return canvas;
-}
-
-function decodeImage(raw: ArrayBuffer):any | null | undefined {
+function decodeImage(raw: ArrayBuffer): any {
     // NOTE: this code is lifted from UTIF._imgLoaded, which is why it is in this style
     const ifds = UTIF.decode(raw);
     let vsns = ifds;
@@ -80,4 +62,23 @@ function decodeImage(raw: ArrayBuffer):any | null | undefined {
     }
     UTIF.decodeImage(raw, page, ifds);
     return page;
+}
+
+function convertToRGBA8(page: any): { page: any, rgba: Uint8Array } {
+    return { page: page, rgba: UTIF.toRGBA8(page) };
+}
+
+function renderOnCanvas(converted: { page: any, rgba: Uint8Array }): HTMLCanvasElement {
+    // NOTE: this code is lifted from UTIF._imgLoaded, which is why it is in this style
+    const canvas = document.createElement("canvas");
+    canvas.width = converted.page.width;
+    canvas.height = converted.page.height;
+    const canvas2D = canvas.getContext("2d");
+    const imageData = canvas2D!.createImageData(converted.page.width, converted.page.height);
+    for (var i = 0; i < converted.rgba.length; i++) {
+        // Uint8Array into Uint8ClampedArray
+        imageData.data[i] = converted.rgba[i];
+    }
+    canvas2D!.putImageData(imageData, 0, 0);
+    return canvas;
 }
